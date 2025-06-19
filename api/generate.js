@@ -1,8 +1,10 @@
-module.exports = async function handler(req, res) {
-  res.setHeader('Access-Control-Allow-Origin', '*'); // Or your domain
+export default async function handler(req, res) {
+  // CORS headers for all responses
+  res.setHeader('Access-Control-Allow-Origin', '*'); // Or set your domain instead of *
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
+  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     res.status(200).end();
     return;
@@ -45,4 +47,4 @@ module.exports = async function handler(req, res) {
   } catch (error) {
     res.status(500).json({ error: error.toString() });
   }
-};
+}
