@@ -58,7 +58,7 @@ export default async function handler(req, res) {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        model: 'dall-e-2', // Try dall-e-2 first!
+        model: 'dall-e-3', // Try dall-e-2 first!
         prompt,
         n: 1,
         size: "1024x1024"
