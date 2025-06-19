@@ -1,5 +1,6 @@
 export default async function handler(req, res) {
-  res.setHeader('Access-Control-Allow-Origin', '*'); // Or your domain
+  // Always set CORS headers first
+  res.setHeader('Access-Control-Allow-Origin', '*'); // or your domain
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
@@ -13,7 +14,19 @@ export default async function handler(req, res) {
     return;
   }
 
-  const { prompt } = req.body || {};
+  // Robust JSON body parsing
+  let prompt;
+  try {
+    if (req.body && typeof req.body === 'string') {
+      const parsed = JSON.parse(req.body);
+      prompt = parsed.prompt;
+    } else if (req.body && typeof req.body === 'object') {
+      prompt = req.body.prompt;
+    }
+  } catch (e) {
+    prompt = undefined;
+  }
+
   if (!prompt) {
     res.status(400).json({ error: 'Missing prompt' });
     return;
