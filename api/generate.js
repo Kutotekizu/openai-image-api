@@ -3,8 +3,6 @@ export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
-  console.log('Request body (raw):', req.body);
-
   if (req.method === 'OPTIONS') {
     res.status(200).end();
     return;
@@ -15,32 +13,32 @@ export default async function handler(req, res) {
     return;
   }
 
+  // Parse the raw request body
+  let body = '';
+  await new Promise((resolve) => {
+    req.on('data', (chunk) => { body += chunk; });
+    req.on('end', resolve);
+  });
+
   let prompt;
   try {
-    if (req.body && typeof req.body === 'string') {
-      const parsed = JSON.parse(req.body);
-      prompt = parsed.prompt;
-    } else if (req.body && typeof req.body === 'object') {
-      prompt = req.body.prompt;
-    }
+    const parsed = JSON.parse(body);
+    prompt = parsed.prompt;
+    console.log('Parsed prompt (manual):', prompt);
   } catch (e) {
-    console.log('JSON parse error:', e);
+    console.log('Body parse error:', e, 'Body:', body);
     prompt = undefined;
   }
+
   console.log('Prompt to OpenAI:', prompt, '| Type:', typeof prompt, '| Length:', prompt ? prompt.length : 'null');
 
-
-  if (!prompt) {
-    console.log('Prompt missing:', req.body);
-    res.status(400).json({ error: 'Missing prompt' });
+  if (!prompt || typeof prompt !== 'string' || !prompt.trim()) {
+    res.status(400).json({ error: 'Prompt missing or invalid.' });
     return;
   }
 
   const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
-  console.log('OPENAI_API_KEY exists:', !!OPENAI_API_KEY);
-
   if (!OPENAI_API_KEY) {
-    console.log('API key missing!');
     res.status(500).json({ error: 'Server misconfigured: no API key.' });
     return;
   }
@@ -69,7 +67,6 @@ export default async function handler(req, res) {
       res.status(500).json({ error: 'Failed to generate image', openai: data });
     }
   } catch (error) {
-    console.log('Caught error:', error);
     res.status(500).json({ error: error.toString() });
   }
 }
