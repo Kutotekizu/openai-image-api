@@ -25,6 +25,8 @@ export default async function handler(req, res) {
     console.log('JSON parse error:', e);
     prompt = undefined;
   }
+  console.log('Prompt to OpenAI:', prompt, '| Type:', typeof prompt, '| Length:', prompt ? prompt.length : 'null');
+
 
   if (!prompt) {
     console.log('Prompt missing:', req.body);
