@@ -1,6 +1,5 @@
 export default async function handler(req, res) {
-  // Always set CORS headers first
-  res.setHeader('Access-Control-Allow-Origin', '*'); // or your domain
+  res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
@@ -14,7 +13,6 @@ export default async function handler(req, res) {
     return;
   }
 
-  // Robust JSON body parsing
   let prompt;
   try {
     if (req.body && typeof req.body === 'string') {
@@ -24,16 +22,21 @@ export default async function handler(req, res) {
       prompt = req.body.prompt;
     }
   } catch (e) {
+    console.log('JSON parse error:', e);
     prompt = undefined;
   }
 
   if (!prompt) {
+    console.log('Prompt missing:', req.body);
     res.status(400).json({ error: 'Missing prompt' });
     return;
   }
 
   const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
+  console.log('OPENAI_API_KEY exists:', !!OPENAI_API_KEY);
+
   if (!OPENAI_API_KEY) {
+    console.log('API key missing!');
     res.status(500).json({ error: 'Server misconfigured: no API key.' });
     return;
   }
@@ -54,12 +57,15 @@ export default async function handler(req, res) {
     });
 
     const data = await openaiRes.json();
+    console.log('OpenAI response:', data);
+
     if (data && data.data && data.data[0] && data.data[0].url) {
       res.status(200).json({ image_url: data.data[0].url });
     } else {
       res.status(500).json({ error: 'Failed to generate image', openai: data });
     }
   } catch (error) {
+    console.log('Caught error:', error);
     res.status(500).json({ error: error.toString() });
   }
 }
