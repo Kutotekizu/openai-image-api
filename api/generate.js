@@ -1,4 +1,15 @@
 export default async function handler(req, res) {
+  // CORS headers for all responses
+  res.setHeader('Access-Control-Allow-Origin', '*'); // Or set your domain instead of *
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+  // Handle CORS preflight requests
+  if (req.method === 'OPTIONS') {
+    res.status(200).end();
+    return;
+  }
+
   if (req.method !== 'POST') {
     res.status(405).json({ error: 'Only POST allowed' });
     return;
@@ -10,7 +21,6 @@ export default async function handler(req, res) {
     return;
   }
 
-  // Never expose this key to frontend!
   const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 
   try {
