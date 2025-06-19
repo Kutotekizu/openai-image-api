@@ -1,5 +1,5 @@
-module.exports = async function handler(req, res) {
-  res.setHeader('Access-Control-Allow-Origin', 'https://www.thechair.net');
+export default async function handler(req, res) {
+  res.setHeader('Access-Control-Allow-Origin', '*'); // Or your domain
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
@@ -21,7 +21,6 @@ module.exports = async function handler(req, res) {
 
   const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
   if (!OPENAI_API_KEY) {
-    console.error('No OpenAI API key found');
     res.status(500).json({ error: 'Server misconfigured: no API key.' });
     return;
   }
@@ -42,15 +41,12 @@ module.exports = async function handler(req, res) {
     });
 
     const data = await openaiRes.json();
-    console.log('OpenAI response:', data); // Add this!
-
     if (data && data.data && data.data[0] && data.data[0].url) {
       res.status(200).json({ image_url: data.data[0].url });
     } else {
       res.status(500).json({ error: 'Failed to generate image', openai: data });
     }
   } catch (error) {
-    console.error('Caught error:', error);
     res.status(500).json({ error: error.toString() });
   }
-};
+}
