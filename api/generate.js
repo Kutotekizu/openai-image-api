@@ -3,27 +3,6 @@ export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
-  let prompt;
-try {
-  // Parse JSON body if needed
-  if (req.body && typeof req.body === 'string') {
-    const parsed = JSON.parse(req.body);
-    prompt = parsed.prompt;
-  } else if (req.body && typeof req.body === 'object') {
-    prompt = req.body.prompt;
-  } else {
-    prompt = undefined;
-  }
-} catch (e) {
-  prompt = undefined;
-}
-
-if (!prompt) {
-  res.status(400).json({ error: 'Missing prompt' });
-  return;
-}
-
-
   if (req.method === 'OPTIONS') {
     res.status(200).end();
     return;
@@ -71,8 +50,3 @@ if (!prompt) {
     res.status(500).json({ error: error.toString() });
   }
 }
-
-console.log('Request method:', req.method);
-console.log('Request body:', req.body);
-console.log('OPENAI_API_KEY exists:', !!process.env.OPENAI_API_KEY);
-
