@@ -13,21 +13,28 @@ export default async function handler(req, res) {
     return;
   }
 
-  // Parse the raw request body
-  let body = '';
-  await new Promise((resolve) => {
-    req.on('data', (chunk) => { body += chunk; });
-    req.on('end', resolve);
-  });
-
   let prompt;
-  try {
-    const parsed = JSON.parse(body);
-    prompt = parsed.prompt;
-    console.log('Parsed prompt (manual):', prompt);
-  } catch (e) {
-    console.log('Body parse error:', e, 'Body:', body);
-    prompt = undefined;
+  let parsed = null;
+
+  // First, try to read req.body directly (for Vercel/Next.js functions)
+  if (req.body && typeof req.body === 'object') {
+    prompt = req.body.prompt;
+    console.log('Parsed prompt (from object):', prompt);
+  } else {
+    // Otherwise, parse the raw body
+    let body = '';
+    await new Promise((resolve) => {
+      req.on('data', (chunk) => { body += chunk; });
+      req.on('end', resolve);
+    });
+    try {
+      parsed = JSON.parse(body);
+      prompt = parsed.prompt;
+      console.log('Parsed prompt (from raw):', prompt);
+    } catch (e) {
+      console.log('Body parse error:', e, 'Body:', body);
+      prompt = undefined;
+    }
   }
 
   console.log('Prompt to OpenAI:', prompt, '| Type:', typeof prompt, '| Length:', prompt ? prompt.length : 'null');
@@ -51,7 +58,7 @@ export default async function handler(req, res) {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        model: 'dall-e-2',
+        model: 'dall-e-2', // Try dall-e-2 first!
         prompt,
         n: 1,
         size: "1024x1024"
