@@ -71,3 +71,8 @@ if (!prompt) {
     res.status(500).json({ error: error.toString() });
   }
 }
+
+console.log('Request method:', req.method);
+console.log('Request body:', req.body);
+console.log('OPENAI_API_KEY exists:', !!process.env.OPENAI_API_KEY);
+
