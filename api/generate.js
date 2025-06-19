@@ -51,7 +51,7 @@ export default async function handler(req, res) {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        model: 'dall-e-3',
+        model: 'dall-e-2',
         prompt,
         n: 1,
         size: "1024x1024"
